@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<head>
+    
+</head>
+<h1>Xave and Dad&apos;s RPG</h1>
+
+<input type="button" value="Attack" onclick="attackClicked();" />
+<table>
+    <tr>
+        <td id="player" width="50%"></td>
+        <td id="mobs" width="50%"></td>
+    </tr>
+</table>
+<h2>Combat Log</h2>
+<div id="combatlog" style="border: 1px solid #000; padding: 10px"></div>
+<script type="text/javascript">
+    class Character {
+        constructor (name, hitPoints, armour, minDamage, maxDamage) {
+            this.uuid = crypto.randomUUID();
+            this.name = name;
+            this.hitPoints = hitPoints;
+            this.armour = armour;
+            this.minDamage = minDamage;
+            this.maxDamage = maxDamage;
+        }
+        
+        getIntroduction() {
+            return "The mighty " + this.name + " has " + this.hitPoints + " hitpoints,  has " + this.armour + " armour and does " + this.minDamage + "-" + this.maxDamage + " damage. The UUID is " + this.uuid;
+        }
+
+
+    }
+    
+    function writeTocombatlog(message) {
+        let newParagraph = document.createElement("p");
+        newParagraph.innerHTML = message;
+        let combatlog = document.getElementById("combatlog");
+        combatlog.prepend(newParagraph);
+    }
+    
+    function getRandomInt(max) {
+        return Math.floor(Math.random() * max) + 1;
+    }
+    
+    function attack(attacker, defender){
+        var message = "";
+        let attackRoll = getRandomInt(20)
+        message += "The attack roll was " + attackRoll + ". ";
+        if(attackRoll > defender.armour) {
+           message += attacker.name + " hit " + defender.name + ". ";
+           let damage = getRandomInt(attacker.maxDamage);
+           defender.hitPoints = defender.hitPoints - damage;
+           message += defender.name + " was hit for " + damage + " points of damage. " + defender.name + " now has " + defender.hitPoints + " hit points left.";
+        }
+        else {
+        message += attacker.name + " missed " + defender.name;
+        }
+        renderPlayerState();
+        writeTocombatlog(message);
+    }
+    
+    let xavier = new Character("Xavier", 14, 12, 1, 8);
+    
+    let player = xavier.uuid;
+
+    let orc = new Character("Orc", 20, 10, 1, 2)
+    
+    let players = [xavier, orc];
+    let attacker = 0;
+    renderPlayerState();
+
+    function attackClicked() {
+        if (attacker == 0) {
+            attack(players[0], players[1]);
+            attacker = 1; 
+       }
+       else {
+        attack(players[1], players[0]);
+            attacker = 0; 
+       }
+    }
+
+    function renderPlayerState()
+    {
+        players.forEach(currentPlayer => {
+            
+            var output = "";
+            output += "<p><img src=\"" + currentPlayer.name + ".jpg\" height=\"100\" /></p>";
+            output += "<p>Name: " + currentPlayer.name + "</p>";
+            output += "<p>Hit points: " + currentPlayer.hitPoints + "</p>";
+            output += "<p>Armour: " + currentPlayer.armour + "</p>";
+            output += "<p>Damage: " + currentPlayer.minDamage + "-" + currentPlayer.maxDamage + " hit points.</p>";
+
+            if(currentPlayer.uuid == player)
+            {
+                document.getElementById("player").innerHTML = output;
+            }
+            else{
+                document.getElementById("mobs").innerHTML = output;
+            }
+        });
+    }
+
+    writeTocombatlog("Xavier fights an Orc");
+    writeTocombatlog(xavier.getIntroduction());
+    writeTocombatlog(orc.getIntroduction());
+    
+</script>
+
+</html>
